@@ -1,4 +1,11 @@
 {
   "name": "md-links",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "dependencies": {
+    "eslint-config-airbnb-base": "^14.2.0",
+    "jest": "^26.1.0"
+  },
+  "scripts": {
+    "tests": "jest"
+  }
 }
