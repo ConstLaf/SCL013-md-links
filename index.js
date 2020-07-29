@@ -1,3 +1,1 @@
-module.exports = () => {
-  // ...
-};
+const fs = require(fs);
