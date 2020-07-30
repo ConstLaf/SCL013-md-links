@@ -2,8 +2,10 @@
   "name": "md-links",
   "version": "0.1.0",
   "dependencies": {
+    "chalk": "^4.1.0",
     "eslint-config-airbnb-base": "^14.2.0",
-    "jest": "^26.1.0"
+    "jest": "^26.1.0",
+    "jshint": "^2.11.1"
   },
   "scripts": {
     "tests": "jest"
