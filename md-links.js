@@ -15,17 +15,20 @@ filePath = path.normalize(filePath) // Se deshace se .. extras
 console.log('PATH:', chalk.magenta(filePath)) // Ruta donde se encuentra el archivo.md
 
 const dirOrFile = () => { // Función que distinge directorios
-    fs.readdir(filePath, (err, files) => { // Función toma dos parámetros, el path y un callback
-        if(err) {
-            console.log(chalk.red.bold('INVALID PATH ->'), err)
-        } else {
-            files.forEach(file => { // Toma todos los archivos que encuentra y por cada uno :
-                if(file.includes('.md')){ // Si cada archivo incluye una extensión .md 
-                    console.log('EXT.MD->', chalk.green(file)) // 
-                }
-            })
-        }
+    return new Promise((resolve, reject) => {
+        fs.readdir(filePath, (err, files) => { // Función toma dos parámetros, el path y un callback
+            if(err){
+                console.log(chalk.red.bold('INVALID PATH ->'), err )
+            } else {
+                files.forEach(file => { // Toma todos los archivos que encuentra y por cada uno :
+                    if(file.includes('.md')){ // Si cada archivo incluye una extensión .md 
+                        console.log('EXT.MD->', chalk.green(file)) // 
+                    }
+                })
+            }  
+        })
     })
 }
+
 
 module.exports = dirOrFile
