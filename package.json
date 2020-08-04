@@ -4,8 +4,10 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "eslint-config-airbnb-base": "^14.2.0",
+    "filehound": "^1.17.4",
     "jest": "^26.1.0",
-    "jshint": "^2.11.1"
+    "jshint": "^2.11.1",
+    "marked": "^1.1.1"
   },
   "scripts": {
     "tests": "jest"

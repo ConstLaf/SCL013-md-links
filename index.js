@@ -1,3 +1,4 @@
-const dirOrFile = require('./md-links')
+const mdlinks = require('./md-links')
 
-dirOrFile()
+mdlinks()
+//  returnFileUrls()
