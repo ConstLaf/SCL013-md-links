@@ -4,8 +4,7 @@ const fs = require('fs') // Este módulo provee una API para interactuar con el 
 const path = require('path') // Este módulo provee de utilidades para trabajar con rutas de archivos y directorios.
 const chalk = require('chalk') // Librería para colores
 const marked = require('marked') // Compilador para parsear markdown 
-
-const RegExr = /(((https?:\/\/)|(http?:\/\/)|(www\.))[^\s\n]+)(?=\))/g
+const fetch = require('node-fetch')
 
 //  Clase que representa a un archivo markdown y sus links
 class MarkdownFile {
@@ -17,11 +16,27 @@ class MarkdownFile {
 
 //  Clase que representa a un link y su texto
 class MarkdownLink {
+    status = 'NOT VERIFIED'
+
     constructor(text, href) {
         this.text = text
         this.href = href
     }
+
+    set status(newStatus) {
+        this.status = newStatus
+    }
+
+    get truncatedText() {
+        if (this.text.length > 50) {
+            return this.text.substring(0, 50) // Método devuelve un subconjunto de un objeto String.
+        } else {
+            return this.text
+        }
+    }
 }
+
+
 
 
 let filePath = process.argv[2] // Process es un objeto global que provee de info y control de un proceso de nodejs
@@ -32,6 +47,8 @@ console.log('RESOLVE:', chalk.yellow(filePath))
 
 filePath = path.normalize(filePath) // Se deshace se .. extras
 console.log('PATH:', chalk.magenta(filePath)) // Ruta donde se encuentra el archivo.md
+
+const validate = true
 
 const dirOrFile = () => { // Función que distinge directorios
     return new Promise((resolve, reject) => {
@@ -89,54 +106,8 @@ const directoryContent = (markdownsFiles) => {
     })
 }
 
-module.exports = dirOrFile 
-
-/* dirOrFile().then(response => {
-        console.log(response);
-    })
-    .catch(err => {
-        console.log(err);
-    }) */
-
- /* const readingFile = (pathFile, enconding) => {
-    return new Promise((resolve, reject) => {
-        fs.readFile(pathFile, encoding, (err, data) => {
-            if(err) {
-                reject(err)
-                console.log('Probando ERROR', err)
-            } else {
-                resolve(data)
-                console.log('DATITOS del FILE', data)
-            }
-        })
-    })
-}
- */
-/* const returnFileUrls = (url) => {
-    fs.readFile(filePath, "utf-8", (err, file) => { // entra al archivo
-      const arrayLinks = file.match(RegExr);
-      console.log(chalk.yellow('Reading .md file...')); // está leyendo al archivo
-      if (err) {
-        console.log(err);
-      } else {
-        arrayLinks.map((url) => {
-          console.log(filePath, "\n", chalk.green(url));
-        });
-      }
-    });
-  } */
- 
-  
-
-//  console.log(readingFile(file, enconding));
-/* readingFile('README.md', 'utf-8') 
-    .then(res => {
-        console.log(res);
-    })
-    .catch(err =>{
-        console.log(err);
-    }) */
 
 
-    //  returnFileUrls,
-    
+module.exports = { 
+    dirOrFile }
+
