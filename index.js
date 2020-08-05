@@ -1,7 +1,9 @@
 const mdlinks = require('./md-links')
 const { dirOrFile } = require('./md-links')
+const { argv } = require('yargs')
 
-dirOrFile()
+if(argv.validate || argv.v) {
+    dirOrFile()
     .then(markdownFiles => {
         markdownFiles.forEach(file => {
             console.log('FILE: ' + file.path)
@@ -10,6 +12,7 @@ dirOrFile()
             })
         })
     })
-
+}
+  
 // considerar todas las opciones para el usuario 
 // después la opción entregársela 
