@@ -1,7 +1,6 @@
 'use strict'
 
 const fs = require('fs') // Este módulo provee una API para interactuar con el sist. de archivos
-const path = require('path') // Este módulo provee de utilidades para trabajar con rutas de archivos y directorios.
 const chalk = require('chalk') // Librería para colores
 const marked = require('marked') // Compilador para parsear markdown 
 const fetch = require('node-fetch') // Librería para consultas http
@@ -16,7 +15,7 @@ class MarkdownFile { // Es un tipo especial de función
 
 //  Clase que representa a un link y su texto
 class MarkdownLink {
-    status = 'NOT VERIFIED'
+    status = chalk.bold.inverse('NOT VERIFIED')
 
     constructor(text, href) {
         this.text = text
@@ -37,21 +36,9 @@ class MarkdownLink {
 }
 
 
-
-let filePath = process.argv[2] // Process es un objeto global que provee de info y control de un proceso de nodejs
-console.log('ARG:', chalk.blue(filePath)) // Nos muestra la ruta relativa 
-
-filePath = path.resolve(filePath) // Resuelve la ruta relativa en absoluta
-console.log('RESOLVE:', chalk.yellow(filePath)) 
-
-filePath = path.normalize(filePath) // Se deshace se .. extras
-console.log('PATH:', chalk.magenta(filePath)) // Ruta donde se encuentra el archivo.md
-
-const validate = true
-
-const dirOrFile = () => { // Función que distinge directorios
+const dirOrFile = (cli) => { // Función que distinge directorios
     return new Promise((resolve, reject) => {
-        fs.readdir(filePath, (error, files) => { // Función toma dos parámetros, el path y un callback
+        fs.readdir(cli.path, (error, files) => { // Función toma dos parámetros, el path y un callback
             if(error){
                 reject(error)
                 console.log(chalk.red.bold('INVALID PATH ->'), error)
@@ -60,7 +47,7 @@ const dirOrFile = () => { // Función que distinge directorios
 
                 directoryContent(markdownsFiles)
                     .then(markdownFilesWithLinks => {
-                        if (!validate) {
+                        if (!cli.validate) {
                             resolve(markdownFilesWithLinks)
                             return
                         }
@@ -156,17 +143,19 @@ const updateMarkdownFileLinksStatus = (markdownFile) => {
                         .then(response => {
                             if (response.status === 200) {
                                 link.status = chalk.inverse.greenBright("OK ✔: 200")
-                                resolve()
                             } else if (response.status === 301) {
                                 link.status = chalk.inverse.greenBright("OK ✔: 301" + response.status)
                                 console.log(response.status)
-                                resolve()   
                             } else if (response.status === 404) {
-                                link.status = chalk.inverse.redBright("FAIL ⛔: ")
-                                resolve()
+                                link.status = chalk.inverse.redBright("FAIL ⛔: 404")
+                            } else {
+                                link.status = chalk.inverse.redBright("FAIL ⛔: " + response.status)
                             }
+
+                            resolve()
                         })
                         .catch(error => {
+
                             // Atrapamos la falla y cambiamos el estado del link fallido
                             link.status = chalk.inverse.redBright("FAIL ⛔: " + error)
 
