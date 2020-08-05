@@ -1,7 +1,7 @@
+#!/usr/bin/env node
 'use strict'
 
 const fs = require('fs') // Este módulo provee una API para interactuar con el sist. de archivos
-const path = require('path') // Este módulo provee de utilidades para trabajar con rutas de archivos y directorios.
 const chalk = require('chalk') // Librería para colores
 const marked = require('marked') // Compilador para parsear markdown 
 const fetch = require('node-fetch') // Librería para consultas http
@@ -16,15 +16,15 @@ class MarkdownFile { // Es un tipo especial de función
 
 //  Clase que representa a un link y su texto
 class MarkdownLink {
-    status = 'NOT VERIFIED'
+    status = chalk.bold.yellowBright.inverse('Not verified')
 
     constructor(text, href) {
-        this.text = text
-        this.href = href
+        this.text = text // Hace referencia al texto de esta clase 
+        this.href = href // Hace referencia al href de esta clase 
     }
 
     set status(newStatus) { // Un setter es un método que establece el valor de una propiedad específica
-        this.status = newStatus
+        this.status = newStatus // Hace referencia al newStatus de esta clase
     }
 
     get truncatedText() { // Un getter es un método que obtiene el valor de una propiedad específica.
@@ -37,31 +37,19 @@ class MarkdownLink {
 }
 
 
-
-let filePath = process.argv[2] // Process es un objeto global que provee de info y control de un proceso de nodejs
-console.log('ARG:', chalk.blue(filePath)) // Nos muestra la ruta relativa 
-
-filePath = path.resolve(filePath) // Resuelve la ruta relativa en absoluta
-console.log('RESOLVE:', chalk.yellow(filePath)) 
-
-filePath = path.normalize(filePath) // Se deshace se .. extras
-console.log('PATH:', chalk.magenta(filePath)) // Ruta donde se encuentra el archivo.md
-
-const validate = true
-
-const dirOrFile = () => { // Función que distinge directorios
+const mdlinks = (cli) => { // Función que distinge directorios
     return new Promise((resolve, reject) => {
-        fs.readdir(filePath, (error, files) => { // Función toma dos parámetros, el path y un callback
+        fs.readdir(cli.path, (error, files) => { // Función toma dos parámetros, el path entregado en el cli y un callback
             if(error){
                 reject(error)
-                console.log(chalk.red.bold('INVALID PATH ->'), error)
+                console.log(chalk.bgRed.bold('INVALID PATH ->'), chalk.red(error))
             } else {
-                const markdownsFiles = files.filter(file => file.endsWith('.md'))
+                const markdownsFiles = files.filter(file => file.endsWith('.md')) // Filtra archivos que terminan con .md
 
-                directoryContent(markdownsFiles)
-                    .then(markdownFilesWithLinks => {
-                        if (!validate) {
-                            resolve(markdownFilesWithLinks)
+                directoryContent(markdownsFiles) // Función que recibe a los archivos .md
+                    .then(markdownFilesWithLinks => { 
+                        if (!cli.validate) { // Si el valor de validate es falso
+                            resolve(markdownFilesWithLinks) // Entrega los links sin validar
                             return
                         }
 
@@ -81,14 +69,14 @@ const dirOrFile = () => { // Función que distinge directorios
     })
 }
 
-const readMarkdownFile = (file) => {
+const readMarkdownFile = (file) => { // Promesa que lee archivos .md
     return new Promise((resolve, reject) => {
         fs.readFile(file, 'utf-8', (error, fileContent) => {
             if(error) {
                 console.log(error);
             } else {
                 const links = []
-                const renderer = new marked.Renderer()
+                const renderer = new marked.Renderer() // Extrae las diferentes partes del markdown
 
                 renderer.link = (href, title, text) => {
                     // Hay urls que hacen referencia a elementos dentro de un html a través del símbolo #
@@ -97,7 +85,7 @@ const readMarkdownFile = (file) => {
                         links.push(new MarkdownLink(text, href))
                     }
                 }
-                marked(fileContent, {
+                marked(fileContent, { // La función marked indica que comience a renderizar
                     renderer: renderer
                 })
 
@@ -107,14 +95,14 @@ const readMarkdownFile = (file) => {
     })
 }
 
-const directoryContent = (markdownsFiles) => {
+const directoryContent = (markdownsFiles) => { // Promesa que lee el contenido de un directorio
     return new Promise((resolve, reject) => {
         Promise.all(
-            markdownsFiles.map(file => {
-                return readMarkdownFile(file)
+            markdownsFiles.map(file => { // Mapea crea un array de promesas 
+                return readMarkdownFile(file) // Se crea una promesa para cada archivo
             })
         )
-        .then(filesWithLinks => {
+        .then(filesWithLinks => { // Se ejecuta cuando todas las promesas se han finalizado
             resolve(filesWithLinks)
         })
     })
@@ -130,18 +118,18 @@ const updateMarkdownFilesLinksStatus = (markdownFiles) => {
 
         Promise.all(
             markdownFiles.map( markdownFile => {
-                // Agrupamos las promesas para todos los archivos
+                // Agrupa las promesas para todos los archivos
                 return updateMarkdownFileLinksStatus(markdownFile)
             })
         )
         .then(() => {
-            // Le avisaremos a la promesa anterior que todos los fetch ya finalizaron
+            // Se avisa a la promesa anterior que todos los fetch ya finalizaron
             resolve()   
         })
     })
 }
 
-// Retornamos una promesa que avisará cuando todos los links del archivos han sido consultados con fetch
+// Se retorna una promesa que avisará cuando todos los links del archivos han sido consultados con fetch
 const updateMarkdownFileLinksStatus = (markdownFile) => {
     return new Promise((resolve, reject) => {
         if (markdownFile.links.length == 0) {
@@ -156,17 +144,19 @@ const updateMarkdownFileLinksStatus = (markdownFile) => {
                         .then(response => {
                             if (response.status === 200) {
                                 link.status = chalk.inverse.greenBright("OK ✔: 200")
-                                resolve()
                             } else if (response.status === 301) {
                                 link.status = chalk.inverse.greenBright("OK ✔: 301" + response.status)
                                 console.log(response.status)
-                                resolve()   
                             } else if (response.status === 404) {
-                                link.status = chalk.inverse.redBright("FAIL ⛔: ")
-                                resolve()
+                                link.status = chalk.inverse.redBright("FAIL ⛔: 404")
+                            } else {
+                                link.status = chalk.inverse.redBright("FAIL ⛔: " + response.status)
                             }
+
+                            resolve()
                         })
                         .catch(error => {
+
                             // Atrapamos la falla y cambiamos el estado del link fallido
                             link.status = chalk.inverse.redBright("FAIL ⛔: " + error)
 
@@ -191,5 +181,4 @@ const updateMarkdownFileLinksStatus = (markdownFile) => {
 
 
 module.exports = { 
-    dirOrFile }
-
+    mdlinks }
