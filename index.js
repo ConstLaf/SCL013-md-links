@@ -9,9 +9,9 @@ if(argv.validate || argv.v) {
     dirOrFile()
     .then(markdownFiles => {
         markdownFiles.forEach(file => {
-            console.log('FILE: ' + file.path)
+            console.log(chalk.('FILE: ') + (file.path))
             file.links.forEach(link => {
-                console.log('\t\tText: ' + link.truncatedText + ', \n\t\tURL: ' + link.href + ', \n\t\tStatus: ' + link.status)
+                console.log(('\t\tText: ' + link.truncatedText + ', \n\t\tURL: ' + link.href + ', \n\t\tStatus: ' + link.status))
             })
         })
     })
