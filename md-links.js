@@ -5,7 +5,6 @@ const path = require('path') // Este módulo provee de utilidades para trabajar 
 const chalk = require('chalk') // Librería para colores
 const marked = require('marked') // Compilador para parsear markdown 
 const fetch = require('node-fetch') // Librería para consultas http
-const { inflate } = require('zlib')
 
 //  Clase que representa a un archivo markdown y sus links
 class MarkdownFile { // Es un tipo especial de función
@@ -155,11 +154,15 @@ const updateMarkdownFileLinksStatus = (markdownFile) => {
                 return new Promise((resolve, reject) => {
                     fetch(link.href)
                         .then(response => {
-                            if (response.status == 200) {
+                            if (response.status === 200) {
                                 link.status = chalk.inverse.greenBright("OK ✔: 200")
                                 resolve()
-                            } else {
-                                link.status = chalk.inverse.redBright("FAIL ⛔: " + response.status)
+                            } else if (response.status === 301) {
+                                link.status = chalk.inverse.greenBright("OK ✔: 301" + response.status)
+                                console.log(response.status)
+                                resolve()   
+                            } else if (response.status === 404) {
+                                link.status = chalk.inverse.redBright("FAIL ⛔: ")
                                 resolve()
                             }
                         })
