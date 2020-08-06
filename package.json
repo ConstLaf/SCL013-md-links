@@ -2,6 +2,7 @@
   "name": "md-links",
   "version": "0.1.0",
   "dependencies": {
+    "ascii-cats": "^1.1.1",
     "chalk": "^4.1.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "filehound": "^1.17.4",
