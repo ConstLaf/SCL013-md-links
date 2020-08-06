@@ -86,10 +86,11 @@ Como usuario quiero que el software sea capaz de leer archivos .md, recorre el c
 ## 3. Proceso creativo:
 
 *  #### 3.1 Diagrama de flujo
+![diagrama](http://imgfz.com/i/oB1D9PL.png)
 
 *  #### 3.2 Imagen del producto:
 ![imagen1](http://imgfz.com/i/KPaofcb.jpeg)
-* ![imagen2](http://imgfz.com/i/QtGOskn.jpeg)
+![imagen2](http://imgfz.com/i/QtGOskn.jpeg)
 
 
 ## 4. Organización y planificación:
